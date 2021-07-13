@@ -1,0 +1,41 @@
+{
+  "name": "sistema",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "@mdi/font": "^5.9.55",
+    "axios": "^0.21.1",
+    "html2canvas": "^1.0.0",
+    "jspdf": "^2.3.1",
+    "jspdf-autotable": "^3.5.15",
+    "jwt-decode": "^3.1.2",
+    "vue": "^2.6.14",
+    "vue-router": "^3.5.2",
+    "vuetify": "^1.5.24",
+    "vuetify-loader": "^1.6.0",
+    "vuex": "^3.6.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.12.1",
+    "@vue/cli-service": "^4.5.13",
+    "stylus": "^0.54.8",
+    "stylus-loader": "^3.0.1",
+    "vue-cli-plugin-vuetify": "^0.4.6",
+    "vue-template-compiler": "^2.6.14",
+    "vuetify-loader": "^1.0.5"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}
