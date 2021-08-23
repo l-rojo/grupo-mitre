@@ -5,10 +5,12 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import axios from 'axios'
+import { VueMaskDirective } from 'v-mask'
+Vue.directive('mask', VueMaskDirective);
 
 Vue.config.productionTip = false
-axios.defaults.baseURL='https://app.excelenciadigital.ml/gm-node/facturacionmes'
-//axios.defaults.baseURL='http://localhost:3001/api/facturacionMes/'
+//axios.defaults.baseURL='https://app.excelenciadigital.ml/gm-node/facturacionmes'
+axios.defaults.baseURL='http://localhost:3001/gm-node/'
 new Vue({
   router,
   //vuetify,

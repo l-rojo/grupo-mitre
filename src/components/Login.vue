@@ -10,7 +10,7 @@
                 <v-card-text>
                     <v-text-field v-model="usuario" autofocus color="accent" label="Usuario" required>
                     </v-text-field>
-                    <v-text-field v-model="contraseña" type="password" color="accent" label="Contraseña" required>
+                    <v-text-field v-model="Password" type="password" color="accent" label="Contraseña" required>
                     </v-text-field>
                     <v-flex class="red--text" v-if="error">
                         {{error}}
@@ -32,7 +32,7 @@ export default {
         return {
             dialog: false,
             usuario: '',
-            contraseña: '',
+            Password: '',
             error: null
         }
     },
@@ -41,28 +41,26 @@ export default {
             val || this.close() 
             }
         },
-     methods:{    
+    methods:{    
         close () {
             
             this.dialog = false;
             //console.log(this.dialog);
             //this.$router.push('Categorias') 
             
-            },
-         ingresar(){
-            console.log("Entrar");
-            axios.post('Usuario/'+this.usuario, {'Contraseña': this.contraseña})
+        },
+        ingresar(){
+            //console.log("Entrar");
+            axios.post('usuarios/login/', {'Password': this.Password,'Usuario': this.usuario})
             .then(respuesta => {
-               console.log("Data",respuesta) 
+               //console.log("Data",respuesta) 
                 return respuesta.data
-                
             })
             .then(data => {    
-                console.log(data.Id);
+                //console.log(data.Id);
+                //console.log(data)
                 this.$store.dispatch("guardarToken", data.token)
-                
                 this.$router.push({ name: 'home' })
-               
             })
             .catch(err => {
                 console.log(err);
@@ -75,6 +73,7 @@ export default {
                 }
                 //console.log(err)
             })
+            console.log("Cargando...");
         }
     }
 

@@ -24,19 +24,22 @@
 				<v-flex xs12 sm6 md6>
 				<v-text-field
 					label="Cod.Prestador"
-					:disabled="(!Datos)"
 					v-model="ItemSel.Prestador"
+					:disabled="esPrestador"
+					@blur="BuscarPeriodo"
 				></v-text-field>
 				</v-flex>
 				<v-flex xs12 sm6 md6>
 				<v-autocomplete
 					v-model="ItemSel.Prestador"
 					:items="Prestadores"
-					:disabled="(!Datos)"
 					clearable
 					item-text="Nombre"
 					item-value="idPrestador"
 					label="Prestador"
+					:disabled="esPrestador"
+					@blur="BuscarPeriodo"
+					@change="BuscarPeriodo"
 				>
 				</v-autocomplete>
 				</v-flex>
@@ -80,12 +83,12 @@
 					</v-dialog>
 				</v-flex>
 				<v-flex xs12 sm6 md6>
-					<v-btn color="info" :disabled="(!Datos)" title="Buscar Periodo"  @click="BuscarPeriodo">Buscar</v-btn>
+					<v-btn color="info" title="Buscar Periodo"  @click="BuscarPeriodo">Buscar</v-btn>
 				</v-flex>
 				</v-toolbar>
 			</v-layout>
 			<v-layout wrap>
-			<v-dialog v-model="Cargas" max-width="500px">
+			<v-dialog v-model="Cargas" max-width="500px" persistent>
 				<template v-slot:activator="{ on, attrs }">
 					<v-btn
 						class="white--text"
@@ -109,13 +112,10 @@
 									v-model="PractCarga.Documento"
 									ref="Documento"
 									label="Documento"
+									@keypress.enter="BuscarAfiliado()"
+									v-on:keydown.tab="BuscarAfiliado()"
+									@blur="BuscarAfiliado()"
 								></v-text-field>
-								<v-btn
-									color="primary"
-									@click="BuscarAfiliado()"
-								>
-									<v-icon color="white">search</v-icon>
-								</v-btn>
 								<v-text-field
 									v-model="PractCarga.Nombre"
 									ref="Nombre"
@@ -129,6 +129,36 @@
 								></v-text-field>
 							</v-layout>
 							<v-layout wrap>
+								<v-menu
+									ref="menu1"
+									v-model="menu1"
+									:close-on-content-click="false"
+									transition="scale-transition"
+									offset-y
+									max-width="290px"
+									min-width="auto"
+								>
+									<template v-slot:activator="{ on, attrs }">
+										<v-text-field
+											v-model="dateFormatted"
+											label="Fecha Realizacion"
+											v-mask="'##/##/####'"
+											hint="DD/MM/AAAA"
+											persistent-hint
+											prepend-icon="mdi-calendar"
+											v-bind="attrs"
+											@blur="date = parseDate(dateFormatted)"
+											v-on="on"
+										></v-text-field>
+									</template>
+									<v-date-picker
+										v-model="date"
+										no-title
+										@input="menu1 = false"
+									></v-date-picker>
+								</v-menu>
+							</v-layout>
+							<v-layout wrap>
 								<v-flex xs12 sm4 md4>
 								<v-autocomplete
 									v-model="PractCarga.IdNomImporte"
@@ -137,6 +167,9 @@
 									item-text="codigo"
 									item-value="id"
 									label="Codigo"
+									@keypress.enter="getPrecios()"
+									v-on:keydown.tab="getPrecios()"
+									@blur="getPrecios()"
 									solo
 								></v-autocomplete>
 								</v-flex>
@@ -148,9 +181,31 @@
 									item-text="Nombre"
 									item-value="id"
 									label="Nomenclador"
+									@keypress.enter="getPrecios()"
+									v-on:keydown.tab="getPrecios()"
+									@blur="getPrecios()"
 									solo
 								></v-autocomplete>
 								</v-flex>
+							</v-layout>
+							<v-layout wrap>
+								<!--fecha, coseguro, importe unitario, total-->
+								<v-text-field
+									v-model="Precio.PUnitario"
+									label="Importe Unitario"
+									readonly
+								></v-text-field>
+								<v-text-field
+									v-model="Precio.Coseguro"
+									label="Coseguro"
+									type="number"
+									readonly
+								></v-text-field>
+								<v-text-field
+									v-model="Precio.Total"
+									label="Total"
+									readonly
+								></v-text-field>
 							</v-layout>
 						</v-container>
 					</v-card-text>
@@ -214,11 +269,12 @@
 				</v-card>
 			</v-dialog>
 			</v-layout>
-			<v-layout wrap>
+			<v-layout wrap width="1600px">
 				<v-data-table
 					:headers="headers"
 					:items="Practicas"
 					:items-per-page="25"
+					:loading="cargando"
 					class="elevation-1"
 					:disabled="Datos"
 
@@ -270,13 +326,18 @@ import autoTable from 'jspdf-autotable';
 import html2cavas from 'html2canvas'
 import axios from 'axios'
 export default {
-    data: () => ({
+    data: vm => ({
+		date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      	dateFormatted: vm.formatDate((new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)),
+      	menu1: false,
 		Prestador: null,
+		Precio: {},
 		Afiliado: {},
 		Prestadores: [],
 		Datos: true,
 		ObraSocial:null,
 		ObraSociales: [],
+		cargando:false,
 		Nomenclador: [],
 		Practicas: [],
 		Factura: {},
@@ -290,6 +351,7 @@ export default {
 		Cargas: false,
 		PractCarga: {},
 		month1: new Date().toISOString().substr(0, 7),
+
 		Mes: null,
 		ItemSel:{},
 		headers: [
@@ -309,10 +371,19 @@ export default {
 			{ text: 'Total', value: 'Total', sortable: false },
 		],
 	}),
+	computed: {
+    	computedDateFormatted () {
+    		return this.formatDate(this.date)
+      	},
+		esPrestador(){
+			return this.$store.state.usuario.idPrestador != 0
+		}
+    },
 	created () {
     	// this.listar()
 		this.cargarObrasSociales()
     	this.cargarPrestadores()
+		this.elijePrestador()
   	},
 	watch: {
 		dialog (val) {
@@ -327,20 +398,40 @@ export default {
 		dialogCierre (val) {
 		val || this.cancelCierre()
 		},
+		date (val) {
+        this.dateFormatted = this.formatDate(this.date)
+      	},
 	},
 	methods: {
 		cargarPrestadores () {
 			const me = this
-			axios.get('Prestadores').then(function (response) {
+			let header={"token": this.$store.state.token}
+			let configuracion = {headers: header} 
+			axios.get('facturacionmes/Prestadores',configuracion).then(function (response) {
 				console.log(response.data)
 				me.Prestadores = response.data
 			}).catch(function (error) {
 				console.log(error)
 			})
     	},
+		getPrecios(){
+			let me = this
+			let foo = this.PractCarga
+			axios.get('facturacionmes/NomImportes/'+me.PractCarga.IdNomImporte+'/'+me.PractCarga.Cantidad+'/'+me.dateFormatted+'').then(function (response) {
+				console.log(response.data)
+				me.Precio = response.data[0]
+			}).catch(function (error) {
+				console.log(error)
+			})
+		},
+		elijePrestador () {
+			if( this.$store.state.usuario.idPrestador!=0 )
+				this.ItemSel.Prestador=this.$store.state.usuario.idPrestador
+		},
 		BuscarAfiliado () {
 			let me = this
-			axios.get('Afiliado/'+me.PractCarga.Documento+'').then(function (response) {
+			let foo = this.PractCarga
+			axios.get('facturacionmes/Afiliado/'+me.PractCarga.Documento+'').then(function (response) {
 				console.log(response.data)
 				me.Afiliado = response.data
 				me.PractCarga.Nombre = me.Afiliado[0].Nombre
@@ -352,7 +443,7 @@ export default {
     	},
 		CargarNomen () {
 			const me = this
-			axios.get('Nomenclador/'+me.ItemSel.ObraSocial+'').then(function (response) {
+			axios.get('facturacionmes/Nomenclador/'+me.ItemSel.ObraSocial+'').then(function (response) {
 				console.log(response.data)
 				me.Nomenclador = response.data
 			}).catch(function (error) {
@@ -361,7 +452,7 @@ export default {
 		},
 		cargarObrasSociales () {
 			const me = this
-			axios.get('getListadoObraSocial').then(function (response) {
+			axios.get('facturacionmes/getListadoObraSocial').then(function (response) {
 				console.log(response.data)
 				me.ObraSociales = response.data
 			}).catch(function (error) {
@@ -372,15 +463,17 @@ export default {
 			if(this.ItemSel.Periodo && this.ItemSel.Prestador && this.ItemSel.ObraSocial)
 			{
 				this.Datos=false
+				this.cargando=true
 				const me=this
 				me.Cerrado=false
 				let Item=this.ItemSel
 				let anio=this.ItemSel.Periodo.substr(0, 4)
 				let mes=this.ItemSel.Periodo.substr(5, 7)
 				
-				axios.get('Facturacion/'+anio+'/'+mes+'/'+Item.ObraSocial+'/'+Item.Prestador+'').then(function (response) {
+				axios.get('facturacionmes/Facturacion/'+anio+'/'+mes+'/'+Item.ObraSocial+'/'+Item.Prestador+'').then(function (response) {
 					console.log(response.data)
 					me.Practicas = response.data
+					me.cargando=false
 					if(response.data.length !==0 && response.data[0].Cerrado==1)
 						me.Cerrado = true
 				}).catch(function (error) {
@@ -394,6 +487,7 @@ export default {
 			this.PractCarga.Documento=null
 			this.PractCarga.Nombre=null
 			this.PractCarga.IdNomImporte=null
+			this.PractCarga.Fecha=null
 			this.$refs["Documento"].$refs.input.focus()
 		},
 		CerrarCarga () {
@@ -416,8 +510,9 @@ export default {
 				me.anio=anio
 				me.IdObraSocial=parseInt(this.ItemSel.ObraSocial)
 				me.IdPrestador=parseInt(this.ItemSel.Prestador)
-				console.log(me)
-				axios.post('CargarFacturacion', me).then(function (response) {
+				me.Fecha=foo.date
+				console.log(Object.entries(me))
+				axios.post('facturacionmes/CargarFacturacion', me).then(function (response) {
 					console.log(response.data)
 					foo.Limpiar()
 				}).catch(function (error) {
@@ -441,7 +536,14 @@ export default {
 		},
 		deleteItemConfirm () {
 			// this.desserts.splice(this.editedIndex, 1)
-			axios.put('AnularFacturacion/'+this.IdAnular+'').then(function (response) {
+			let anio=this.ItemSel.Periodo.substr(0, 4)
+			let mes=this.ItemSel.Periodo.substr(5, 7)
+			let me={}
+			me.mes=mes
+			me.anio=anio
+			me.IdObraSocial=parseInt(this.ItemSel.ObraSocial)
+			me.IdPrestador=parseInt(this.ItemSel.Prestador)
+			axios.put('facturacionmes/AnularFacturacion/'+this.IdAnular+'',me).then(function (response) {
 				console.log(response.data)
 			}).catch(function (error) {
 				console.log('Error', error)
@@ -465,7 +567,7 @@ export default {
 			let me=this
 			if(me.Factura.Factura)
 			{
-				axios.put('CerrarPeriodo/'+this.CierreFinal+'',me.Factura).then(function (response) {
+				axios.put('facturacionmes/CerrarPeriodo/'+this.CierreFinal+'',me.Factura).then(function (response) {
 					console.log(response.data)
 				}).catch(function (error) {
 					console.log('Error', error)
@@ -496,7 +598,7 @@ export default {
 		HabilitarEdicion(){
 			let me=this
 			me.CierreFinal=me.Practicas[0].IdResumen
-			axios.put('HabilitarPeriodo/'+me.CierreFinal+'').then(function (response) {
+			axios.put('facturacionmes/HabilitarPeriodo/'+me.CierreFinal+'').then(function (response) {
 				console.log(response.data)
 			}).catch(function (error) {
 				console.log('Error', error)
@@ -551,7 +653,19 @@ export default {
 				body: resultado
 			})
 			doc.save('Test.pdf');
-		}
+		},
+		formatDate (date) {
+			if (!date) return null
+
+			const [year, month, day] = date.split('-')
+			return `${day}-${month}-${year}`
+		},
+		parseDate (date) {
+			if (!date) return null
+
+			const [day, month, year] = date.split('/')
+			return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+      	}
 	}
 }
 </script>

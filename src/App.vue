@@ -8,7 +8,7 @@
       v-if="logueado"
     >
       <v-list dense>
-        <template>
+        <template v-if="esAdmin||esMitre||esPrestador">
           <v-list-tile :to="{ name: 'home'}">
             <v-list-tile-action>
               <v-icon>home</v-icon>
@@ -18,7 +18,7 @@
             </v-list-tile-title>
           </v-list-tile>          
         </template>
-        <template>
+        <template v-if="esAdmin||esMitre">
             <v-list-group>
             <v-list-tile slot="activator">
               <v-list-tile-content>
@@ -50,7 +50,7 @@
            
           </v-list-group>
         </template>
-        <template>
+        <template v-if="esAdmin">
             <v-list-group>
             <v-list-tile slot="activator">
               <v-list-tile-content>
@@ -69,7 +69,7 @@
                 </v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile :to="{ name: ''}">
+            <v-list-tile :to="{ name: 'usuarios'}">
               <v-list-tile-action>
                 <v-icon>table_chart</v-icon>
               </v-list-tile-action>
@@ -81,8 +81,8 @@
             </v-list-tile>
           </v-list-group>
         </template>
-        <template>
-            <v-list-group>
+        <template v-if="esAdmin||esMitre||esPrestador">
+          <v-list-group>
             <v-list-tile slot="activator">
               <v-list-tile-content>
                 <v-list-tile-title>
@@ -100,13 +100,23 @@
                 </v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile :to="{ name: ''}">
+            <v-list-tile :to="{ name: 'Facturacion'}">
               <v-list-tile-action>
                 <v-icon>table_chart</v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>
-                  Consulta Ventas
+                  Facturacion Mensual
+                </v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="{ name: 'InformeFacturacion'}">
+              <v-list-tile-action>
+                <v-icon>table_chart</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>
+                  Informe Facturacion
                 </v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
@@ -128,11 +138,12 @@
         <span class="hidden-sm-and-down">GRUPO MITRE</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
+      <span>{{usuario}}</span><v-divider class="mx-2" inset vertical></v-divider>
       <v-btn @click="salir" v-if="logueado" icon>
         <v-icon>logout</v-icon> Salir
       </v-btn>
-      <v-btn :to="{name: 'login'}" v-else>
-        <v-icon>apps</v-icon> Login
+      <v-btn color="primary" :to="{name: 'login'}" v-else>
+        <v-icon>login</v-icon> Login
       </v-btn>
     </v-toolbar>
     <v-content>
@@ -142,6 +153,7 @@
         </v-slide-y-transition>
       </v-container>
     </v-content>
+
     <v-footer dark height="auto">
       <v-layout justify-center>
         <v-flex text-xs-center>
@@ -153,7 +165,6 @@
         </v-flex>
       </v-layout>
     </v-footer>
-
   </v-app>
 </template>
 
@@ -175,15 +186,28 @@ export default {
       title: 'Vuetify.js',
     }
   },
-   computed: {
+  computed: {
     logueado(){
-      console.log( "store", this.$store.state.token);
+      // console.log( "store: ", this.$store.state.token);
+      // console.log("usuario: ", this.$store.state.usuario);
       return this.$store.state.usuario;
-
+    },
+    esAdmin(){
+      return this.$store.state.usuario && this.$store.state.usuario.rol == 1;
+    },
+    esMitre(){
+      return this.$store.state.usuario && this.$store.state.usuario.rol == 2;
+    },
+    esPrestador(){
+      return this.$store.state.usuario && this.$store.state.usuario.rol == 3;
+    },
+    usuario(){
+      // console.log(this.$store.state);
+      return ((this.$store.state.usuario==null) ? 'Bienvenido' : this.$store.state.usuario.usuario)
     }
- },
+  },
   created(){
-    this.$store.dispatch("salir");
+    this.$store.dispatch("autoLogin");
   },
   methods:{
     salir(){
