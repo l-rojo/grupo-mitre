@@ -5,7 +5,7 @@
                 <h4>Usuarios</h4>
             </v-card-title>
             <v-card-text>
-                <v-dialog
+                <!-- <v-dialog
                     v-model="dialog" 
                     :overlay="false"
                     max-width="50%"
@@ -95,49 +95,49 @@
                             <p>{{Prueba}}</p>
                         </v-card-text>
                     </v-card>
-                </v-dialog>
+                </v-dialog> -->
             </v-card-text>
         </v-card>
     </v-layout>
 </template>
 <script>
-import axios from 'axios'
-export default {
-    data () {
-        return{
-            dialog: false,
-            nuevoUsuario: false,
-            Prueba:'',
-            value: ''
-        }
-    },
-    computed: {
-    	tituloModal () {
-    		return (this.nuevoUsuario?'Nuevo Usuario':'Editar Usuario')
-      	},
-    },
-    watch: {
-		dialog (val) {
-		    val || (false)
-		},
-    },
-    methods: {
-        cancelar(){
-            this.dialog=false
-            this.nuevoUsuario=false
-            this.Prueba=''
-        },
-        guardarUsuario(){
-            var me = this
-            axios.put('usuarios/nuevoUsuario/', {HOla:'dahsjkdh',djakjd:12}).then(function (response) {
-				console.log(response.data)
-                me.Prueba=response.data
-			}).catch(function (error) {
-				console.log(error)
-			})
-        },
-    }
-}
+// import axios from 'axios'
+// export default {
+//     data () {
+//         return{
+//             dialog: false,
+//             nuevoUsuario: false,
+//             Prueba:'',
+//             value: ''
+//         }
+//     },
+//     computed: {
+//     	tituloModal () {
+//     		return (this.nuevoUsuario?'Nuevo Usuario':'Editar Usuario')
+//       	},
+//     },
+//     watch: {
+// 		dialog (val) {
+// 		    val || (false)
+// 		},
+//     },
+//     methods: {
+//         cancelar(){
+//             this.dialog=false
+//             this.nuevoUsuario=false
+//             this.Prueba=''
+//         },
+//         guardarUsuario(){
+//             var me = this
+//             axios.put('usuarios/nuevoUsuario/', {HOla:'dahsjkdh',djakjd:12}).then(function (response) {
+// 				console.log(response.data)
+//                 me.Prueba=response.data
+// 			}).catch(function (error) {
+// 				console.log(error)
+// 			})
+//         },
+//     }
+// }
 </script>
 <style lang="css">
 
