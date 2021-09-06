@@ -280,7 +280,7 @@
 
             	>
 					<template slot="items" slot-scope="props">
-						
+						<td> {{ props.item.Prestador }}</td>
 						<td> {{ props.item.Documento }}</td>
 						<td >{{ props.item.NombreAfiliado }}</td>
 						<td >{{ props.item.codigo }}</td>
@@ -355,12 +355,8 @@ export default {
 		Mes: null,
 		ItemSel:{},
 		headers: [
-			 {
-				text: 'Documento',
-				align: 'start',
-				sortable: false,
-				value: 'Documento',
-          	},
+			{ text: 'Prestador', align: 'start', sortable: false, value: 'Prestador' },
+			{ text: 'Documento', align: 'start', sortable: false, value: 'Documento' },
 			// { text: 'Documento', value: 'Documento', sortable: false },
 			{ text: 'Nombre Afiliado', value: 'NombreAfiliado', sortable: false },
 			{ text: 'Cod. Practica', value: 'codigo', sortable: false },
@@ -434,7 +430,7 @@ export default {
 			axios.get('facturacionmes/Afiliado/'+me.PractCarga.Documento+'').then(function (response) {
 				console.log(response.data)
 				me.Afiliado = response.data
-				me.PractCarga.Nombre = me.Afiliado[0].Nombre
+				this.PractCarga.Nombre = me.Afiliado[0].Nombre
 				me.$refs["Cantidad"].$refs.input.focus()
 			}).catch(function (error) {
 				me.$refs["Nombre"].$refs.input.focus()
@@ -460,6 +456,7 @@ export default {
 			})
     	},
 		BuscarPeriodo () {
+			console.log(this.$store.state.usuario);
 			if(this.ItemSel.Periodo && this.ItemSel.Prestador && this.ItemSel.ObraSocial)
 			{
 				this.Datos=false
@@ -565,8 +562,14 @@ export default {
 		},
 		cierreConfirm(){
 			let me=this
+			me.Factura.mes=this.ItemSel.Periodo.substr(5, 7)
+		    me.Factura.anio=this.ItemSel.Periodo.substr(0, 4)
+			me.Factura.IdObraSocial=parseInt(this.ItemSel.ObraSocial)
+			me.Factura.Op=this.$store.state.usuario.id
 			if(me.Factura.Factura)
 			{
+				console.log(this.CierreFinal);
+				console.log(me.Factura);
 				axios.put('facturacionmes/CerrarPeriodo/'+this.CierreFinal+'',me.Factura).then(function (response) {
 					console.log(response.data)
 				}).catch(function (error) {
@@ -585,6 +588,10 @@ export default {
 			this.Practicas=Object.assign([])
 			this.ItemSel=Object.assign({})
 			this.Factura=Object.assign({})
+			if(this.esPrestador)
+			{
+				this.elijePrestador()
+			}
 		},
 		cancelCierre(){
 			this.dialogCierre = false
@@ -597,8 +604,9 @@ export default {
 		},
 		HabilitarEdicion(){
 			let me=this
-			me.CierreFinal=me.Practicas[0].IdResumen
-			axios.put('facturacionmes/HabilitarPeriodo/'+me.CierreFinal+'').then(function (response) {
+			me.CierreFinal=me.Practicas[0].IdCierre
+			let Op=this.$store.state.usuario.id
+			axios.put('facturacionmes/HabilitarPeriodo/'+me.CierreFinal+'',{Op}).then(function (response) {
 				console.log(response.data)
 			}).catch(function (error) {
 				console.log('Error', error)

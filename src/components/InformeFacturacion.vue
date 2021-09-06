@@ -119,6 +119,7 @@ export default {
       var me=this
       axios.get("Nomenclador/InformeFacturacion/"+this.inf.Periodo+"/"+this.inf.ObraSocial+"/"+this.inf.Prestador+"").then(response=>{
         me.Practicas=response.data
+        console.log(response.data)
         me.Impresion=false
       })
       .catch(error=>{
@@ -157,6 +158,7 @@ export default {
         });
     },
     crearPDF(){
+      console.log('lalalala')
 			var doc = new jsPDF();
 			const tempoTranscurrido = Date.now();
 			const hoy = new Date(tempoTranscurrido);
@@ -169,20 +171,20 @@ export default {
 			doc.addImage(logo, 'JPEG', 0, 0);
 			//doc.setFontSize(16);
 			//doc.text(60, 80, 'Factura Nº 00000'+ me.NumFactura);
-			doc.setFontSize(15);
-			doc.text(10, 90, 'Fecha: '+ fecha);
-			doc.text(10,100 ,' Obra Social: '+ me.ObraSocial + ', Prestador: '+me.Prestador);
+			doc.setFontSize(10);
+			doc.text(10, 80, 'Fecha: '+ fecha);
+			doc.text(10,90 ,' Obra Social: '+ me.ObraSocial);
 			// doc.text(10,100 ,'por convenio U.P.C.N.');
 			let resultado = me.Practicas.map(function(obj){
 				var Arre=[]
-				Arre.push(obj.Documento, obj.NombreAfiliado, obj.codigo, obj.Nombre, obj.cantidad, obj.Coseguro, obj.PUnitario, obj.Total)
+				Arre.push(obj.Prestador, obj.Documento, obj.NombreAfiliado, obj.codigo, obj.Nombre, obj.cantidad, obj.Coseguro, obj.PUnitario, obj.Total)
 				return Arre
 			})
 			//console.log(resultado)
 			doc.autoTable({
-				margin: { top: 110 },
+				margin: { top: 100 },
 				columnStyles: { 0: { halign: 'center' } },
-				head: [['Documento', 'Nombre Afiliado', 'Cod. Practica', 'Practica', 'Cantidad', 'Coseguro', 'Precio Unitario', 'Total']],
+				head: [['Prestador','Documento', 'Nombre Afiliado', 'Cod. Practica', 'Practica', 'Cantidad', 'Coseguro', 'Precio Unitario', 'Total']],
 				body: resultado
 			})
 			doc.save('Test.pdf');
@@ -196,7 +198,7 @@ export default {
       function esPrestador(fruta) {
         return fruta.value === me.inf.Prestador
       }
-      me.Prestador=me.ListPrestador.find(esPrestador).text.trim()
+      //me.Prestador=me.ListPrestador.find(esPrestador).text.trim()
       me.crearPDF()
 		},
     limpiar(){

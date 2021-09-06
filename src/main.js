@@ -9,8 +9,8 @@ import { VueMaskDirective } from 'v-mask'
 Vue.directive('mask', VueMaskDirective);
 
 Vue.config.productionTip = false
-axios.defaults.baseURL='https://app.excelenciadigital.online/gm-node/'
-//axios.defaults.baseURL='http://localhost:3001/gm-node/'
+//axios.defaults.baseURL='https://app.excelenciadigital.online/gm-node/'
+axios.defaults.baseURL='http://localhost:3001/gm-node/'
 new Vue({
   router,
   //vuetify,
