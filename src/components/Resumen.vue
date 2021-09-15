@@ -129,7 +129,7 @@ export default {
 			doc.addImage(logo, 'JPEG', 0, 0,200,50);
 			doc.setFontSize(10);
 			doc.text(10, 60, 'Fecha: '+ fecha);
-      doc.text(50, 60, 'Periodo: 06/2021');
+      doc.text(50, 60, 'Periodo: '+ me.Periodo);
       var total1=0;
 			let resultado = me.facturacion.map(function(obj){
 				var Arre=[]
@@ -168,7 +168,7 @@ export default {
           doc.text(str, data.settings.margin.left, pageHeight - 10);
         }
 			})
-			doc.save('Test.pdf');
+			doc.save(`Periodo-${me.Periodo}-${fecha}.pdf`);
     }
   },
 };
