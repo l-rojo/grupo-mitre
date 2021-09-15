@@ -7,6 +7,7 @@ import FacturacionMes from './components/FacturacionMes.vue'
 import Facturacion from './components/Facturacion.vue'
 import InformeFacturacion from './components/InformeFacturacion.vue'
 import Login from './components/Login.vue'
+import Resumen from './components/Resumen.vue'
 import usuarios from './components/usuarios.vue'
 import Obrasocial from './components/Obrasocial.vue'
 import store from './store'
@@ -21,17 +22,17 @@ var router = new Router({
       path: '/',
       name: 'home',
       component: Home,
-      meta : {
-        administrador:true,
-        mitre:true,
-        prestador:true
+      meta: {
+        administrador: true,
+        mitre: true,
+        prestador: true
       }
     },
     {
       path: '/categorias',
       name: 'categorias',
       component: Categoria,
-      meta : {
+      meta: {
         libre: true
       }
     },
@@ -39,63 +40,72 @@ var router = new Router({
       path: '/nomenclador',
       name: 'nomenclador',
       component: Nomenclador,
-      meta : {
-        administrador:true,
-        mitre:true
+      meta: {
+        administrador: true,
+        mitre: true
       }
     },
     {
       path: '/obrasocial',
       name: 'obrasocial',
       component: Obrasocial,
-      meta : {
-        administrador:true,
-        mitre:true
+      meta: {
+        administrador: true,
+        mitre: true
       }
     },
     {
       path: '/FacturacionMes',
       name: 'FacturacionMes',
       component: FacturacionMes,
-      meta : {
-        administrador:true,
-        mitre:true,
-        prestador:true
+      meta: {
+        administrador: true,
+        mitre: true,
+        prestador: true
       }
     },
     {
       path: '/Facturacion',
       name: 'Facturacion',
       component: Facturacion,
-      meta : {
-        administrador:true,
-        mitre:true,
-        prestador:true
+      meta: {
+        administrador: true,
+        mitre: true,
+        prestador: true
       }
     },
     {
       path: '/InformeFacturacion',
       name: 'InformeFacturacion',
       component: InformeFacturacion,
-      meta : {
-        administrador:true,
-        mitre:true,
-        prestador:true
+      meta: {
+        administrador: true,
+        mitre: true,
+        prestador: true
+      }
+    },
+    {
+      path: '/Resumen',
+      name: 'Resumen',
+      component: Resumen,
+      meta: {
+        administrador: true,
+        mitre: true
       }
     },
     {
       path: '/usuarios',
       name: 'usuarios',
       component: usuarios,
-      meta : {
-        administrador:true
+      meta: {
+        administrador: true
       }
     },
     {
       path: '/login',
       name: 'login',
       component: Login,
-      meta : {
+      meta: {
         libre: true
       }
     }
@@ -103,21 +113,21 @@ var router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.libre)){
+  if (to.matched.some(record => record.meta.libre)) {
     next()
-  } else  if (store.state.usuario && store.state.usuario.rol == 1){
-    if (to.matched.some(record => record.meta.administrador)){
+  } else if (store.state.usuario && store.state.usuario.rol == 1) {
+    if (to.matched.some(record => record.meta.administrador)) {
       next()
-    } 
-  }else  if (store.state.usuario && store.state.usuario.rol == 2){
-    if (to.matched.some(record => record.meta.mitre)){
+    }
+  } else if (store.state.usuario && store.state.usuario.rol == 2) {
+    if (to.matched.some(record => record.meta.mitre)) {
       next()
-    } 
-  }else  if (store.state.usuario && store.state.usuario.rol == 3){
-    if (to.matched.some(record => record.meta.prestador)){
+    }
+  } else if (store.state.usuario && store.state.usuario.rol == 3) {
+    if (to.matched.some(record => record.meta.prestador)) {
       next()
-    } 
-  }else{
+    }
+  } else {
     next({
       name: 'login'
     })

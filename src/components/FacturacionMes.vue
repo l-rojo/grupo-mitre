@@ -1,4 +1,11 @@
 <template>
+	<v-card width=100% height="100%">
+    <v-card-title primary-title>
+      <h3>
+        Carga De Facturacion
+      </h3>
+    </v-card-title>
+    <v-card-text>
 	<v-layout align-start>
 		<v-flex>
 			<v-layout wrap>
@@ -234,23 +241,59 @@
 			>
 				<v-icon color="white">print</v-icon> Imprimir
 			</v-btn>
-			<v-spacer></v-spacer>
+			<v-spacer :hidden="esPrestador"></v-spacer>
 			<v-btn
 				color="orange"
 				class="white--text"
 				@click="HabilitarEdicion()"
 				:disabled="(!Cerrado || Datos)"
+				:hidden="esPrestador"
 			>
 				<v-icon color="white">edit</v-icon> Habilitar Edicion
 			</v-btn>
-			<v-spacer></v-spacer>
+			<v-spacer :hidden="esPrestador"></v-spacer>
+			<v-btn
+				color="orange"
+				class="white--text"
+				@click="editarfactura()"
+				:disabled="(!Cerrado || Datos)"
+				:hidden="esPrestador"
+			>
+				<v-icon color="white">edit</v-icon>Editar Nº Factura
+			</v-btn>
+			<v-spacer :hidden="esPrestador"></v-spacer>
 			<v-btn
 				color="error"
 				@click="CerrarPeriodo()"
 				:disabled="(Cerrado || Datos)"
+				:hidden="esPrestador"
 			>
 				<v-icon color="white">close</v-icon> Cerrar periodo
 			</v-btn>
+			<!-- <v-btn
+				color="error"
+				@click="CerrarPeriodo()"
+				:disabled="(Cerrado || Datos)"
+			>
+				<v-icon color="white">done_all</v-icon> Cerrar periodo
+			</v-btn> -->
+			<v-dialog v-model="dialogFactura" max-width="500px" persistent>
+				<v-card>
+					<v-card-title class="text-h5">Número de Factura</v-card-title>
+					<v-card-text>
+						<v-text-field
+							label="Factura"
+							v-model="Factura.Factura"
+						></v-text-field>
+					</v-card-text>
+					<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn color="info" text @click="cancelFactura">Cancelar</v-btn>
+					<v-btn color="error" text @click="guardarFactura">Continuar</v-btn>
+					<v-spacer></v-spacer>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
 			<v-dialog v-model="dialogCierre" max-width="500px">
 				<v-card>
 					<v-card-title class="text-h5">Esta seguro que desea cerrar el periodo? Ingrese Nro de Factura</v-card-title>
@@ -269,7 +312,8 @@
 				</v-card>
 			</v-dialog>
 			</v-layout>
-			<v-layout wrap width="1600px">
+			<v-layout wrap width="100%">
+          		<v-flex xs12 sm12 md12>
 				<v-data-table
 					:headers="headers"
 					:items="Practicas"
@@ -314,10 +358,13 @@
 					</template>
 				</v-data-table>
 					<!-- class="elevation-1" -->
+				</v-flex>
 			</v-layout>
 			
 		</v-flex>
 	</v-layout>
+	</v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -341,6 +388,7 @@ export default {
 		Nomenclador: [],
 		Practicas: [],
 		Factura: {},
+		FacturaAux: '',
 		NumFactura:-1,
 		IdAnular: null,
 		CierreFinal: null,
@@ -348,6 +396,7 @@ export default {
 		dialog: false,
 		dialogDelete: false,
 		dialogCierre: false,
+		dialogFactura: false,
 		Cargas: false,
 		PractCarga: {},
 		month1: new Date().toISOString().substr(0, 7),
@@ -390,6 +439,9 @@ export default {
 		},
 		Cargas (val) {
 		val || this.CerrarCarga()
+		},
+		dialogFactura (val) {
+		val || this.cancelFactura()
 		},
 		dialogCierre (val) {
 		val || this.cancelCierre()
@@ -456,7 +508,7 @@ export default {
 			})
     	},
 		BuscarPeriodo () {
-			console.log(this.$store.state.usuario);
+			//console.log(this.$store.state.usuario);
 			if(this.ItemSel.Periodo && this.ItemSel.Prestador && this.ItemSel.ObraSocial)
 			{
 				this.Datos=false
@@ -466,13 +518,19 @@ export default {
 				let Item=this.ItemSel
 				let anio=this.ItemSel.Periodo.substr(0, 4)
 				let mes=this.ItemSel.Periodo.substr(5, 7)
-				
+				axios.get('facturacionMes/GetFactura/'+mes+'/'+anio+'/'+Item.ObraSocial+'').then(function (response) {
+					if(response.data.length !==0){
+						me.Factura = response.data[0]
+						me.Cerrado = true
+					}
+					console.log(me.Factura)
+				}).catch(function (error) {
+					console.log(error)
+				})
 				axios.get('facturacionmes/Facturacion/'+anio+'/'+mes+'/'+Item.ObraSocial+'/'+Item.Prestador+'').then(function (response) {
 					console.log(response.data)
 					me.Practicas = response.data
 					me.cargando=false
-					if(response.data.length !==0 && response.data[0].Cerrado==1)
-						me.Cerrado = true
 				}).catch(function (error) {
 					console.log(error)
 				})
@@ -566,21 +624,21 @@ export default {
 		    me.Factura.anio=this.ItemSel.Periodo.substr(0, 4)
 			me.Factura.IdObraSocial=parseInt(this.ItemSel.ObraSocial)
 			me.Factura.Op=this.$store.state.usuario.id
-			if(me.Factura.Factura)
-			{
-				console.log(this.CierreFinal);
-				console.log(me.Factura);
-				axios.put('facturacionmes/CerrarPeriodo/'+this.CierreFinal+'',me.Factura).then(function (response) {
-					console.log(response.data)
-				}).catch(function (error) {
-					console.log('Error', error)
-				})
-				this.Datos=!this.Datos
-				this.Practicas=Object.assign([])
-				this.ItemSel=Object.assign({})
-				this.Factura=Object.assign({})
-				this.cancelCierre()
+			if(!me.Factura.Factura){
+				me.Factura.Factura='-'
 			}
+			console.log(this.CierreFinal);
+			console.log(me.Factura);
+			axios.put('facturacionmes/CerrarPeriodo/'+this.CierreFinal+'',me.Factura).then(function (response) {
+				console.log(response.data)
+			}).catch(function (error) {
+				console.log('Error', error)
+			})
+			this.Datos=!this.Datos
+			this.Practicas=Object.assign([])
+			this.ItemSel=Object.assign({})
+			this.Factura=Object.assign({})
+			this.cancelCierre()
 		},
 		OtroPeriodo()
 		{
@@ -627,7 +685,7 @@ export default {
 			}
 			me.Prestador=me.Prestadores.find(esPrestador).Nombre.trim()
 			//console.log(me.Prestador +'-'+me.ObraSocial)
-			me.NumFactura=me.Practicas[0].Factura
+			me.NumFactura=me.Factura.Factura
 			console.log(me.NumFactura)
 			me.crearPDF()
 		},
@@ -673,7 +731,27 @@ export default {
 
 			const [day, month, year] = date.split('/')
 			return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-      	}
+      	},
+		editarfactura(){
+			this.FacturaAux=this.Factura.Factura
+			this.dialogFactura=true
+		},
+		cancelFactura(){
+			this.Factura.Factura=this.FacturaAux
+			this.dialogFactura=false
+		},
+		guardarFactura(){
+			console.log(this.Factura.Factura)
+			var me=this
+			let Op=this.$store.state.usuario.id
+			axios.put('facturacionmes/EditarFactura/'+me.Factura.Id+'/'+me.Factura.Factura+'',{Op}).then(function (response) {
+				console.log(response.data)
+				me.dialogFactura=false
+				me.FacturaAux=me.Factura.Factura
+			}).catch(function (error) {
+				console.log('Error', error)
+			})
+		}
 	}
 }
 </script>
