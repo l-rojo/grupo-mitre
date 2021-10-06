@@ -95,7 +95,7 @@
 				</v-toolbar>
 			</v-layout>
 			<v-layout wrap>
-			<v-dialog v-model="Cargas" max-width="500px" persistent>
+			<v-dialog v-model="Cargas" max-width="650px" persistent>
 				<template v-slot:activator="{ on, attrs }">
 					<v-btn
 						class="white--text"
@@ -128,14 +128,14 @@
 									ref="Nombre"
 									label="Nombre"
 								></v-text-field>
+							</v-layout>
+							<v-layout wrap>
 								<v-text-field
 									ref="Cantidad"
 									v-model="PractCarga.Cantidad"
 									label="Cantidad"
 									type="number"
 								></v-text-field>
-							</v-layout>
-							<v-layout wrap>
 								<v-menu
 									ref="menu1"
 									v-model="menu1"
@@ -166,11 +166,10 @@
 								</v-menu>
 							</v-layout>
 							<v-layout wrap>
-								<v-flex xs12 sm4 md4>
+								<v-flex xs12 sm2 md2>
 								<v-autocomplete
 									v-model="PractCarga.IdNomImporte"
 									:items="Nomenclador"
-									clearable
 									item-text="codigo"
 									item-value="id"
 									label="Codigo"
@@ -180,11 +179,10 @@
 									solo
 								></v-autocomplete>
 								</v-flex>
-								<v-flex xs12 sm8 md8>
+								<v-flex xs12 sm7 md7>
 								<v-autocomplete
 									v-model="PractCarga.IdNomImporte"
 									:items="Nomenclador"
-									clearable
 									item-text="Nombre"
 									item-value="id"
 									label="Nomenclador"
@@ -193,6 +191,17 @@
 									@blur="getPrecios()"
 									solo
 								></v-autocomplete>
+								</v-flex>
+								<v-flex xs12 sm3 md3>
+									<v-autocomplete
+										v-model="PractCarga.TipoPractica"
+										:items="TipoPractica"
+										:auto-select-first=true
+										item-text="text"
+										item-value="value"
+										label="Tipo Practica"
+										solo
+									></v-autocomplete>
 								</v-flex>
 							</v-layout>
 							<v-layout wrap>
@@ -321,14 +330,15 @@
 					:loading="cargando"
 					class="elevation-1"
 					:disabled="Datos"
-
             	>
 					<template slot="items" slot-scope="props">
 						<td> {{ props.item.Prestador }}</td>
+						<td> {{ props.item.Fecha }}</td>
 						<td> {{ props.item.Documento }}</td>
 						<td >{{ props.item.NombreAfiliado }}</td>
 						<td >{{ props.item.codigo }}</td>
 						<td >{{ props.item.Nombre }}</td>
+						<td >{{ props.item.TPNomb }}</td>
 						<td >{{ props.item.cantidad }}</td>
 						<td >{{ props.item.Coseguro }}</td>
 						<td >{{ props.item.PUnitario }}</td>
@@ -387,6 +397,7 @@ export default {
 		cargando:false,
 		Nomenclador: [],
 		Practicas: [],
+		TipoPractica:[],
 		Factura: {},
 		FacturaAux: '',
 		NumFactura:-1,
@@ -405,11 +416,13 @@ export default {
 		ItemSel:{},
 		headers: [
 			{ text: 'Prestador', align: 'start', sortable: false, value: 'Prestador' },
+			{ text: 'Fecha', align: 'start', sortable: false, value: 'Fecha' },
 			{ text: 'Documento', align: 'start', sortable: false, value: 'Documento' },
 			// { text: 'Documento', value: 'Documento', sortable: false },
 			{ text: 'Nombre Afiliado', value: 'NombreAfiliado', sortable: false },
 			{ text: 'Cod. Practica', value: 'codigo', sortable: false },
 			{ text: 'Practica', value: 'Nombre', sortable: false },
+			{ text: 'Tipo de Practica', value: 'TPNomb', sortable: false },
 			{ text: 'Cantidad', value: 'cantidad', sortable: false },
 			{ text: 'Coseguro', value: 'Coseguro', sortable: false },
 			{ text: 'Precio Unitario', value: 'PUnitario', sortable: false },
@@ -429,6 +442,7 @@ export default {
 		this.cargarObrasSociales()
     	this.cargarPrestadores()
 		this.elijePrestador()
+		this.GetTipoPracticas()
   	},
 	watch: {
 		dialog (val) {
@@ -482,9 +496,11 @@ export default {
 			axios.get('facturacionmes/Afiliado/'+me.PractCarga.Documento+'').then(function (response) {
 				console.log(response.data)
 				me.Afiliado = response.data
-				this.PractCarga.Nombre = me.Afiliado[0].Nombre
+				me.PractCarga.Nombre = me.Afiliado[0].Nombre
+				console.log('paso');
 				me.$refs["Cantidad"].$refs.input.focus()
 			}).catch(function (error) {
+				console.log('catch')
 				me.$refs["Nombre"].$refs.input.focus()
 				console.log(error)
 			})
@@ -751,7 +767,25 @@ export default {
 			}).catch(function (error) {
 				console.log('Error', error)
 			})
-		}
+		},
+		GetTipoPracticas() {
+			let me = this;
+			var osArray = [];
+			//me.limpiar()
+			axios.get("facturacionMes/GetTipoPractica/")
+			.then(function (response) {
+				osArray = response.data;
+				//me.ListPrestador.push({ text: "Todos", value: 0 });
+				osArray.map(function (x) {
+					me.TipoPractica.push({ text: x.Codigo+" - "+x.Nombre, value: x.id });
+				});
+				console.log("TipoPractica")
+				console.log(me.TipoPractica)
+			})
+			.catch(function (error) {
+				console.log(error);
+			});
+    	},
 	}
 }
 </script>

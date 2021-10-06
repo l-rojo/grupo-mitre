@@ -89,6 +89,14 @@
                 <v-list-tile-title> Resumen Mensual </v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
+            <v-list-tile v-if="esAdmin || esMitre" :to="{ name: 'FacturacionCentro' }">
+              <v-list-tile-action>
+                <v-icon>receipt</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title> Resumen Centro </v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
             <v-list-tile :to="{ name: 'InformeFacturacion' }">
               <v-list-tile-action>
                 <v-icon>receipt</v-icon>
@@ -101,8 +109,9 @@
         </template>
       </v-list>
     </v-navigation-drawer>
+      <!-- color="primary darken-3" -->
     <v-toolbar
-      color="blue darken-3"
+      color="primary"
       dark
       app
       fixed
@@ -137,7 +146,7 @@
         <v-flex text-xs-center>
           <v-card flat tile color="primary" class="white--text">
             <v-card-text class="white--text pt-0">
-              Excelencia &copy;2021
+              Excelencia Soluciones Informaticas &copy;2021
             </v-card-text>
           </v-card>
         </v-flex>

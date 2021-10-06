@@ -44,7 +44,7 @@
             </v-dialog>
           </v-flex>
           <v-flex xs12 sm3 md3>
-            <v-btn color="green" @click.native="Informes">Informe</v-btn>
+            <v-btn color="accent" @click.native="Informes">Informe</v-btn>
           </v-flex>
           <v-flex xs12 sm12 md12>
             <v-data-table
@@ -64,14 +64,15 @@
       </v-container>
     </v-card-text>
     <v-spacer></v-spacer>
-    <v-card-actions>
+    <v-footer absolute>
       <v-toolbar color="gray">
         <v-spacer></v-spacer>
-        <v-btn color="green"
+        <v-btn color="accent"
+          :disabled="Impresion"
           @click.native="ImprimirPeriodo"
         >Imprimir</v-btn>
       </v-toolbar>
-    </v-card-actions>
+    </v-footer>
   </v-card>
 </template>
 <script>
@@ -83,6 +84,7 @@ export default {
     month1: new Date().toISOString().substr(0, 7),
     dialog: false,
     Periodo: "",
+    Impresion: true,
     facturacion:[],
     Mes: null,
     headers: [

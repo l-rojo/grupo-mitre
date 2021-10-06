@@ -41,7 +41,7 @@
             <v-text-field label="Fecha Hasta" v-model="inf.Periodo" v-mask="'####/##'" hint="AAAA/MM" persistent-hint></v-text-field>
           </v-flex>
           <v-flex xs12 sm3 md3>
-            <v-btn color="green" @click.native="Informes">Informe</v-btn>
+            <v-btn color="accent" @click.native="Informes">Informe</v-btn>
             <!-- <v-text-field label="Prestador" v-model="inf.Prestador"></v-text-field> -->
           </v-flex>
           <v-flex xs12 sm12 md12>
@@ -67,13 +67,13 @@
       </v-container>
     </v-card-text>
     <v-spacer></v-spacer>
-    <v-card-actions>
+    <v-footer absolute>
       
       <v-toolbar color="gray">
         <v-spacer></v-spacer>
-        <v-btn :disabled="Impresion" color="green" @click.native="ImprimirPeriodo">Imprimir</v-btn>
+        <v-btn :disabled="Impresion" color="accent" @click.native="ImprimirPeriodo">Imprimir</v-btn>
       </v-toolbar>
-    </v-card-actions>
+    </v-footer>
   </v-card>
 </template>
 <script>
@@ -148,7 +148,7 @@ export default {
       axios.get("facturacionMes/Prestadores")
         .then(function (response) {
           osArray = response.data;
-          //me.ListPrestador.push({ text: "Todos", value: 0 });
+          me.ListPrestador.push({ text: "Todos", value: 0 });
           osArray.map(function (x) {
             me.ListPrestador.push({ text: x.Nombre, value: x.idPrestador });
           });

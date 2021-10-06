@@ -8,6 +8,7 @@ import Facturacion from './components/Facturacion.vue'
 import InformeFacturacion from './components/InformeFacturacion.vue'
 import Login from './components/Login.vue'
 import Resumen from './components/Resumen.vue'
+import FacturacionCentro from './components/FacturacionCentro.vue'
 import usuarios from './components/usuarios.vue'
 import Obrasocial from './components/Obrasocial.vue'
 import store from './store'
@@ -88,6 +89,15 @@ var router = new Router({
       path: '/Resumen',
       name: 'Resumen',
       component: Resumen,
+      meta: {
+        administrador: true,
+        mitre: true
+      }
+    },
+    {
+      path: '/FacturacionCentro',
+      name: 'FacturacionCentro',
+      component: FacturacionCentro,
       meta: {
         administrador: true,
         mitre: true
