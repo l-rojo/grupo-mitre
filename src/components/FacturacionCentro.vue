@@ -187,8 +187,9 @@ export default {
         var logo = new Image();
         var imgLogo=me.facturacion[0].Logo;
         logo.src = require (`../assets/${imgLogo}`);
-	doc.text(10, 10, 'Expediente Nº ................................. Letra A, Año 2021, Folio.........');
-        doc.addImage(logo, 'JPEG', 0, 20,200,50);
+	doc.setFontSize(10);
+	doc.text(10, 7, 'Expediente Nº ................................. Letra A, Año 2021, Folio.........');
+        doc.addImage(logo, 'JPEG', 0, 10,200,50);
         doc.setFontSize(10);
         doc.text(10, 50, 'Fecha: '+ fecha);
         doc.text(50, 50, 'Periodo: '+ me.ItemSel.Periodo);
