@@ -198,14 +198,14 @@ export default {
             var Arre=[]
             total1+=obj.Total
             //var a=obj.cerrado?"Cerrada":"Sin cierre"
-            Arre.push( obj.Fecha, obj.Documento, obj.Nombre, obj.Prestador, obj.codigo, obj.TipoPrac, obj.Total)
+            Arre.push( obj.Fecha, obj.Documento, obj.Nombre, obj.Prestador, obj.codigo, obj.TipoPrac, '______', '______', '______', obj.Total)
             return Arre
         })
 			//console.log(resultado)
         doc.autoTable({
             margin: { top: 70 },
             columnStyles: { 0: { halign: 'left' } },
-            head: [['Fecha', 'Documento', 'Nombre', 'Prestador', 'Codigo', 'Tipo Practica', 'Total']],
+            head: [['Fecha', 'Documento', 'Nombre', 'Prestador', 'Codigo', 'Tipo Practica','%Categ.','Honorarios','Gastos', 'Total']],
             body: resultado,
             didDrawPage: function (data) {
 
