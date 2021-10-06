@@ -191,9 +191,9 @@ export default {
 	doc.text(10, 7, 'Expediente Nº ................................. Letra A, Año 2021, Folio.........');
         doc.addImage(logo, 'JPEG', 0, 10,200,50);
         doc.setFontSize(10);
-        doc.text(10, 50, 'Fecha: '+ fecha);
-        doc.text(50, 50, 'Periodo: '+ me.ItemSel.Periodo);
-        doc.text(10, 60, 'Obra Social: '+ me.facturacion[0].OS);
+        doc.text(10, 55, 'Fecha: '+ fecha);
+        doc.text(50, 55, 'Periodo: '+ me.ItemSel.Periodo);
+        doc.text(10, 65, 'Obra Social: '+ me.facturacion[0].OS);
         
         var total1=0;
         let resultado = me.facturacion.map(function(obj){
