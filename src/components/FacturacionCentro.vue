@@ -187,36 +187,35 @@ export default {
         var logo = new Image();
         var imgLogo=me.facturacion[0].Logo;
         logo.src = require (`../assets/${imgLogo}`);
-        doc.addImage(logo, 'JPEG', 0, 0,200,50);
+	doc.setFontSize(10);
+	doc.text(10, 7, 'Expediente Nº ................................. Letra A, Año 2021, Folio.........');
+        doc.addImage(logo, 'JPEG', 0, 10,200,50);
         doc.setFontSize(10);
-        doc.text(10, 50, 'Fecha: '+ fecha);
-        doc.text(50, 50, 'Periodo: '+ me.ItemSel.Periodo);
-        doc.text(10, 60, 'Obra Social: '+ me.facturacion[0].OS);
+        doc.text(10, 55, 'Fecha: '+ fecha);
+        doc.text(50, 55, 'Periodo: '+ me.ItemSel.Periodo);
+        doc.text(10, 65, 'Obra Social: '+ me.facturacion[0].OS);
         
         var total1=0;
         let resultado = me.facturacion.map(function(obj){
             var Arre=[]
             total1+=obj.Total
             //var a=obj.cerrado?"Cerrada":"Sin cierre"
-            Arre.push( obj.Fecha, obj.Documento, obj.Nombre, obj.Prestador, obj.codigo, obj.TipoPrac, obj.Total)
+            Arre.push( obj.Fecha, obj.Documento, obj.Nombre, obj.Prestador, obj.codigo, obj.TipoPrac, '____', '____', '____', obj.Total)
             return Arre
         })
 			//console.log(resultado)
         doc.autoTable({
             margin: { top: 70 },
             columnStyles: { 0: { halign: 'left' } },
-            head: [['Fecha', 'Documento', 'Nombre', 'Prestador', 'Codigo', 'Tipo Practica', 'Total']],
+            head: [['Fecha', 'Documento', 'Nombre', 'Prestador', 'Codigo', 'Tipo Practica','%Categ.','Honorarios','Gastos', 'Total']],
             body: resultado,
             didDrawPage: function (data) {
-
                 // // Header
                 // doc.setFontSize(20);
                 // doc.setTextColor(40);
                 // doc.text("Report", data.settings.margin.left, 22);
                 // console.log();
-
                 // Footer
-
                 // jsPDF 1.4+ uses getWidth, <1.4 uses .width
                 var pageSize = doc.internal.pageSize;
                 var pageHeight = pageSize.height
