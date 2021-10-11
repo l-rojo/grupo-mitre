@@ -10,7 +10,7 @@ Vue.directive('mask', VueMaskDirective);
 
 Vue.config.productionTip = false
 //Configuracion para el Backend De Produccion
-axios.defaults.baseURL='https://app.excelenciadigital.online/gm-node/'
+axios.defaults.baseURL='https://excelenciadigital.info/gm-node/'
 //Configuracion para el Backend Local 
 //axios.defaults.baseURL='http://localhost:3001/gm-node/'
 new Vue({
