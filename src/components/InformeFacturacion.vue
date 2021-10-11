@@ -31,6 +31,7 @@
               item-text="text"
               item-value="value"
               label="Prestador"
+              :disabled="esPrestador"
               required
             ></v-autocomplete>
               <!-- @change="listar"
@@ -113,6 +114,12 @@ export default {
   created() {
     this.SelectObraSocial();
     this.SelectPrestador();
+    this.elijePrestador ()
+  },
+  computed: {
+    esPrestador(){
+			return this.$store.state.usuario.idPrestador != 0
+		}
   },
   methods: {
     Informes(){
@@ -126,6 +133,10 @@ export default {
         console.log(error);
       })
     },
+    elijePrestador () {
+			if( this.$store.state.usuario.idPrestador!=0 )
+				this.inf.Prestador=this.$store.state.usuario.idPrestador
+		},
     SelectObraSocial() {
       let me = this;
       var osArray = [];
