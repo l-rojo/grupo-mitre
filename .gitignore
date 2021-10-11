@@ -23,5 +23,5 @@ yarn-error.log*
 #El Archivo con vinculo a Backend 
 #esta agregado en gitignore 
 #para evitar Cambios en Produccion
-/src/main.js
+./src/main.js
 
