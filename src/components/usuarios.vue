@@ -2,7 +2,7 @@
     <v-layout align-center justify-center>
         <v-card width="100%" height="100%">
             <v-card-title primary-title>
-                <h4>Usuarios</h4>
+                <h4>Usuario</h4>
             </v-card-title>
             <v-card-text>
                 <template>
